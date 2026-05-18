@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤪 무작위 도파민 발전소 🤪</title>
+    <title>⚡ 자동 도파민 비트 발전소 ⚡</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,133 +15,123 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #05050a;
+            background-color: #030308;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: system-ui, sans-serif;
             cursor: pointer;
             perspective: 1000px;
         }
-        /* 안내 문구 */
-        #guide {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: rgba(255, 255, 255, 0.4);
-            font-size: calc(1.5rem + 1vw);
-            font-weight: bold;
-            text-align: center;
-            pointer-events: none;
-            letter-spacing: 2px;
-            animation: blink 1s infinite alternate;
-            z-index: 2;
-        }
-        @keyframes blink {
-            from { opacity: 0.3; } to { opacity: 0.8; }
-        }
 
-        /* 스코어 레이어 */
-        #score-board {
+        /* 상단 제어 바 */
+        #control-panel {
             position: absolute;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: #00ffcc;
-            font-size: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        #score-board {
+            color: #00ffff;
+            font-size: 2.5rem;
             font-weight: 900;
-            text-shadow: 0 0 10px #00ffcc;
-            z-index: 10;
+            text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
             pointer-events: none;
+        }
+
+        /* 자동 클릭 토글 버튼 */
+        #autoclick-btn {
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: #ff007f;
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 0 15px #ff007f;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #autoclick-btn.active {
+            background: #00ffcc;
+            color: #000;
+            box-shadow: 0 0 25px #00ffcc;
         }
 
         /* 캔버스 */
         canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* [이벤트 1] 화면 흔들림 효과 */
-        .shake {
-            animation: shakeAnim 0.15s infinite;
-        }
+        /* 화면 연출 효과들 */
+        .shake { animation: shakeAnim 0.1s infinite; }
         @keyframes shakeAnim {
-            0% { transform: translate(3px, 5px) rotate(1deg); }
-            20% { transform: translate(-5px, -3px) rotate(-2deg); }
-            40% { transform: translate(6px, -1px) rotate(1deg); }
-            60% { transform: translate(-3px, 2px) rotate(0deg); }
-            80% { transform: translate(4px, 4px) rotate(-1deg); }
-            100% { transform: translate(-2px, -4px) rotate(2deg); }
+            0% { transform: translate(4px, -2px) rotate(0.5deg); }
+            50% { transform: translate(-3px, 3px) rotate(-0.5deg); }
+            100% { transform: translate(2px, 1px) rotate(0deg); }
         }
 
-        /* [이벤트 2] 화면 색상 반전 플래시 */
-        .flash {
-            animation: flashAnim 0.3s steps(2) infinite;
-        }
+        .flash { animation: flashAnim 0.2s steps(2) infinite; }
         @keyframes flashAnim {
-            0% { background-color: #ff0055; filter: invert(0); }
-            50% { background-color: #00ffaa; filter: invert(1); }
-            100% { background-color: #0055ff; filter: invert(0); }
+            0% { background-color: #ff00ff; filter: hue-rotate(90deg); }
+            100% { background-color: #00ffff; filter: hue-rotate(0deg); }
         }
 
-        /* [이벤트 3] 거대 이모지 폭탄 스타일 */
         .emoji-bomb {
             position: absolute;
-            font-size: 150px;
+            font-size: 120px;
             pointer-events: none;
             z-index: 5;
-            animation: popOut 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards;
+            animation: popOut 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
         }
         @keyframes popOut {
-            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.3) rotate(45deg); opacity: 0; }
         }
 
-        /* [이벤트 4] 잭팟 오버레이 */
         #jackpot-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 0, 0.9);
+            background: rgba(255, 240, 0, 0.95);
             color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: calc(3rem + 5vw);
+            font-size: calc(2.5rem + 6vw);
             font-weight: 900;
-            z-index: 100;
+            z-index: 1000;
             opacity: 0;
             pointer-events: none;
         }
-        .jackpot-active {
-            animation: jackpotAnim 0.4s ease forwards;
-        }
+        .jackpot-active { animation: jackpotAnim 0.35s ease forwards; }
         @keyframes jackpotAnim {
-            0% { opacity: 0; transform: scale(0.5) rotate(-20deg); }
-            30% { opacity: 1; transform: scale(1.2) rotate(10deg); }
-            70% { opacity: 1; transform: scale(1) rotate(-5deg); }
-            100% { opacity: 0; transform: scale(2) rotate(0deg); }
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(1.8); }
         }
 
-        /* [이벤트 5] 3D 회전 매트릭스 */
-        .matrix-rotate {
-            animation: matrixAnim 0.5s ease-in-out forwards;
-        }
+        .matrix-rotate { animation: matrixAnim 0.4s ease-in-out forwards; }
         @keyframes matrixAnim {
-            0% { transform: rotateY(0deg) rotateX(0deg) scale(1); }
-            50% { transform: rotateY(180deg) rotateX(45deg) scale(0.7); }
-            100% { transform: rotateY(360deg) rotateX(0deg) scale(1); }
+            0% { transform: scale(1) rotateX(0); }
+            50% { transform: scale(0.8) rotateX(25deg) rotateY(15deg); }
+            100% { transform: scale(1) rotateX(0); }
         }
     </style>
 </head>
 <body>
 
-    <div id="guide">화면 아무 데나 미친 듯이 클릭해보세요!</div>
-    <div id="score-board">🔥 DOPAMINE: <span id="score">0</span></div>
-    <div id="jackpot-screen">💰 CRUSH JACKPOT!! 💰</div>
+    <div id="control-panel">
+        <div id="score-board">⚡ PUMP: <span id="score">0</span></div>
+        <button id="autoclick-btn">뇌 내 자동 재생 (OFF)</button>
+    </div>
+
+    <div id="jackpot-screen">🎰 FEVER TIME!! 🎰</div>
     <canvas id="canvas"></canvas>
 
     <script>
@@ -149,11 +139,14 @@
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
         const jackpotScreen = document.getElementById('jackpot-screen');
+        const autoclickBtn = document.getElementById('autoclick-btn');
         const body = document.body;
 
         let score = 0;
         let particles = [];
-        const emojis = ['🔥', '✨', '⚡', '💊', '👑', '🤩', '🎰', '🚀', '🔮', '🎉', '🤑', '👽'];
+        let isAutoClicking = false;
+        let autoClickTimeout = null;
+        const emojis = ['🔥', '⚡', '💊', '👑', '🎰', '🚀', '🤑', '💥', '👻', '🍭'];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -162,17 +155,17 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // 파티클 시스템 (클릭 시 터지는 불꽃)
+        // 시각 효과용 파티클
         class Particle {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.size = Math.random() * 8 + 4;
-                this.speedX = (Math.random() - 0.5) * 20;
-                this.speedY = (Math.random() - 0.5) * 20;
-                this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                this.size = Math.random() * 6 + 4;
+                this.speedX = (Math.random() - 0.5) * 18;
+                this.speedY = (Math.random() - 0.5) * 18;
+                this.color = `hsl(${Math.random() * 360}, 100%, 65%)`;
                 this.alpha = 1;
-                this.decay = Math.random() * 0.03 + 0.02;
+                this.decay = Math.random() * 0.04 + 0.02;
             }
             update() {
                 this.x += this.speedX;
@@ -204,109 +197,147 @@
         }
         animate();
 
-        // 오디오 시스템
+        // 사운드 시스템
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // 효과음 랜덤 생성기
-        function playRandomSound(type) {
+        function playSound(type) {
             if(!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            if (type === 'glitch') {
+            if (type === 'heavy') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(Math.random() * 800 + 200, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
             } else if (type === 'jackpot') {
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(1300, audioCtx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
             } else {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(Math.random() * 1000 + 500, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(Math.random() * 600 + 400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             }
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
             osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        // 핵심: 무작위 예측 불가 이벤트 핸들러
-        function triggerDopamine(e) {
-            e.preventDefault();
+        // 메인 도파민 폭발 함수
+        function triggerDopamine(x, y) {
             initAudio();
             
-            // 매 시도마다 가이드 문구는 즉시 삭제
-            document.getElementById('guide').style.display = 'none';
-
-            // 터치/클릭 위치 획득
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
-            // 1. 무조건 파티클은 기본 탑재
+            // 기본 파티클 분사
             for (let i = 0; i < 15; i++) {
-                particles.push(new Particle(clientX, clientY));
+                particles.push(new Particle(x, y));
             }
 
-            // 2. 점수 무작위 폭등
-            score += Math.floor(Math.random() * 500) + 7;
+            score += Math.floor(Math.random() * 100) + 10;
             scoreDisplay.innerText = score.toLocaleString();
 
-            // 3. ★ 예측 불가 행동 주사위 굴리기 (0 ~ 4) ★
+            // 5가지 예측 불가 행동 무작위 매칭
             const dice = Math.floor(Math.random() * 5);
-
             switch(dice) {
-                case 0: // 지진 효과
+                case 0:
                     body.classList.add('shake');
-                    playRandomSound('glitch');
-                    setTimeout(() => body.classList.remove('shake'), 200);
+                    playSound('heavy');
+                    setTimeout(() => body.classList.remove('shake'), 120);
                     break;
-                    
-                case 1: // 화면 미친듯이 번쩍이기
+                case 1:
                     body.classList.add('flash');
-                    playRandomSound('glitch');
-                    setTimeout(() => body.classList.remove('flash'), 300);
+                    playSound('heavy');
+                    setTimeout(() => body.classList.remove('flash'), 180);
                     break;
-
-                case 2: // 거대 이모지 팝업 폭탄
+                case 2:
                     const emoji = document.createElement('div');
                     emoji.className = 'emoji-bomb';
                     emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                    emoji.style.left = clientX + 'px';
-                    emoji.style.top = clientY + 'px';
+                    emoji.style.left = x + 'px';
+                    emoji.style.top = y + 'px';
                     document.body.appendChild(emoji);
-                    playRandomSound('pop');
-                    setTimeout(() => emoji.remove(), 600);
+                    playSound('light');
+                    setTimeout(() => emoji.remove(), 500);
                     break;
-
-                case 3: // 잭팟 전면 경고 화면
+                case 3:
                     jackpotScreen.classList.add('jackpot-active');
-                    playRandomSound('jackpot');
-                    setTimeout(() => jackpotScreen.classList.remove('jackpot-active'), 400);
+                    playSound('jackpot');
+                    setTimeout(() => jackpotScreen.classList.remove('jackpot-active'), 350);
                     break;
-
-                case 4: // 화면 3D 회전 뒤틀기
+                case 4:
                     body.classList.add('matrix-rotate');
-                    playRandomSound('pop');
-                    setTimeout(() => body.classList.remove('matrix-rotate'), 500);
+                    playSound('light');
+                    setTimeout(() => body.classList.remove('matrix-rotate'), 400);
                     break;
             }
         }
 
-        // 마우스 및 터치 이벤트 바인딩 (배경 전체)
-        window.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && !('ontouchstart' in window)) triggerDopamine(e);
-        });
-        window.addEventListener('touchstart', triggerDopamine, { passive: false });
+        // 인간이 가장 도파민을 많이 느끼는 변칙적 리듬 시뮬레이터 (마스터 비트)
+        function runDopamineRhythm() {
+            if (!isAutoClicking) return;
 
+            // 랜덤 화면 좌표 지정 (가장 다채롭게 터지는 영역)
+            const randomX = Math.random() * (window.innerWidth * 0.6) + (window.innerWidth * 0.2);
+            const randomY = Math.random() * (window.innerHeight * 0.6) + (window.innerHeight * 0.2);
+
+            triggerDopamine(randomX, randomY);
+
+            // [핵심 알고리즘] 다음에 클릭할 때까지의 '도파민 유도용' 대기 시간 계산
+            let nextInterval = 444; // 기본 135 BPM 속도 (약 444ms)
+
+            const r = Math.random();
+            if (r < 0.15) {
+                // 1) 엇박 밀당: 뇌를 멈칫하게 만드는 의도적인 긴 침묵 (밀당 박자)
+                nextInterval = 850;
+            } else if (r < 0.35) {
+                // 2) 도파민 폭발: 심장박동을 고조시키는 초고속 다다닥 연타 박자
+                nextInterval = 120;
+            } else if (r < 0.50) {
+                // 3) 스윙 비트: 그루브를 타게 만드는 전형적인 절뚝이 박자
+                nextInterval = 280;
+            }
+
+            // 다음 비트로 연쇄 실행
+            autoClickTimeout = setTimeout(runDopamineRhythm, nextInterval);
+        }
+
+        // 수동 클릭/터치 이벤트 (사용자가 직접 누를 때도 작동)
+        function handleManualClick(e) {
+            if (e.target === autoclickBtn) return; // 버튼 누를 때는 제외
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            triggerDopamine(clientX, clientY);
+        }
+
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && !('ontouchstart' in window)) handleManualClick(e);
+        });
+        window.addEventListener('touchstart', handleManualClick, { passive: false });
+
+        // 자동 클릭 모드 토글 스위치
+        autoclickBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            initAudio();
+            isAutoClicking = !isAutoClicking;
+
+            if (isAutoClicking) {
+                autoclickBtn.innerText = "뇌 내 자동 재생 (ON)";
+                autoclickBtn.classList.add('active');
+                runDopamineRhythm();
+            } else {
+                autoclickBtn.innerText = "뇌 내 자동 재생 (OFF)";
+                autoclickBtn.classList.remove('active');
+                clearTimeout(autoClickTimeout);
+            }
+        });
     </script>
 </body>
 </html>
