@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚡ 자동 도파민 비트 발전소 ⚡</title>
+    <title>🌋 무한 도파민 아케이드 🌋</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,138 +15,175 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #030308;
+            background-color: #020205;
             overflow: hidden;
-            font-family: system-ui, sans-serif;
+            font-family: 'Impact', 'Arial Black', sans-serif;
             cursor: pointer;
-            perspective: 1000px;
+            perspective: 1200px;
         }
 
-        /* 상단 제어 바 */
-        #control-panel {
+        /* 컨트롤 및 상단 UI */
+        #ui-layer {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            z-index: 100;
-        }
-
-        #score-board {
-            color: #00ffff;
-            font-size: 2.5rem;
-            font-weight: 900;
-            text-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
+            gap: 8px;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
             pointer-events: none;
         }
 
-        /* 자동 클릭 토글 버튼 */
+        #score-board {
+            color: #ffff00;
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px #ff0055, 0 0 30px #ffff00;
+            letter-spacing: 2px;
+        }
+
+        /* 피버 게이지 바 */
+        #fever-container {
+            width: 100%;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        #fever-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #ff0055);
+            background-size: 300% 100%;
+            animation: gradientShift 1s linear infinite;
+            transition: width 0.1s ease;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
         #autoclick-btn {
-            padding: 10px 24px;
-            font-size: 1rem;
+            pointer-events: auto;
+            padding: 12px 28px;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #fff;
-            background: #ff007f;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 0 15px #ff007f;
+            background: #222;
+            border: 3px solid #fff;
+            border-radius: 30px;
+            box-shadow: 0 5px 0 #000;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.1s;
+        }
+        #autoclick-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #000;
         }
         #autoclick-btn.active {
             background: #00ffcc;
             color: #000;
-            box-shadow: 0 0 25px #00ffcc;
+            border-color: #000;
+            box-shadow: 0 0 30px #00ffcc, inset 0 0 10px #fff;
+            animation: pulse 0.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); } to { transform: scale(1.05); }
         }
 
-        /* 캔버스 */
         canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* 화면 연출 효과들 */
-        .shake { animation: shakeAnim 0.1s infinite; }
-        @keyframes shakeAnim {
-            0% { transform: translate(4px, -2px) rotate(0.5deg); }
-            50% { transform: translate(-3px, 3px) rotate(-0.5deg); }
-            100% { transform: translate(2px, 1px) rotate(0deg); }
-        }
-
-        .flash { animation: flashAnim 0.2s steps(2) infinite; }
-        @keyframes flashAnim {
-            0% { background-color: #ff00ff; filter: hue-rotate(90deg); }
-            100% { background-color: #00ffff; filter: hue-rotate(0deg); }
-        }
-
-        .emoji-bomb {
+        /* [요소 추가] 경고 및 에러 레이아웃 (트래픽 초과 감성) */
+        .glitch-window {
             position: absolute;
-            font-size: 120px;
+            background: #ff0055;
+            color: white;
+            border: 4px solid white;
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 10px 10px 0 #000;
             pointer-events: none;
-            z-index: 5;
-            animation: popOut 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
+            z-index: 500;
+            animation: dynamicPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards;
         }
-        @keyframes popOut {
-            0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1.3) rotate(45deg); opacity: 0; }
+        @keyframes dynamicPop {
+            0% { transform: scale(0) rotate(-20deg); }
+            100% { transform: scale(1) rotate(var(--r, 5deg)); opacity: 0; }
         }
 
-        #jackpot-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 240, 0, 0.95);
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(2.5rem + 6vw);
-            font-weight: 900;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .jackpot-active { animation: jackpotAnim 0.35s ease forwards; }
-        @keyframes jackpotAnim {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0; transform: scale(1.8); }
+        /* 화면 왜곡 및 충격파 애니메이션 클래스들 */
+        .shake { animation: complexShake 0.12s infinite; }
+        @keyframes complexShake {
+            0% { transform: translate(5px, -5px) scale(1.02); filter: hue-rotate(0deg); }
+            33% { transform: translate(-5px, 5px) scale(0.98); filter: hue-rotate(120deg); }
+            66% { transform: translate(6px, 6px) scale(1.01); filter: hue-rotate(240deg); }
+            100% { transform: translate(-3px, -2px) scale(1); filter: hue-rotate(360deg); }
         }
 
-        .matrix-rotate { animation: matrixAnim 0.4s ease-in-out forwards; }
-        @keyframes matrixAnim {
-            0% { transform: scale(1) rotateX(0); }
-            50% { transform: scale(0.8) rotateX(25deg) rotateY(15deg); }
-            100% { transform: scale(1) rotateX(0); }
+        .fever-active {
+            animation: feverBg 0.1s infinite alternate;
+        }
+        @keyframes feverBg {
+            0% { background-color: #200010; }
+            100% { background-color: #001020; }
+        }
+
+        /* 잭팟 텍스트 폭탄 */
+        .text-bomb {
+            position: absolute;
+            font-size: calc(2rem + 4vw);
+            color: #ffff00;
+            text-shadow: 0 0 20px #ff5500, 0 0 40px #ff0000;
+            pointer-events: none;
+            z-index: 600;
+            animation: textFloat 0.4s ease-out forwards;
+        }
+        @keyframes textFloat {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+            100% { transform: translate(-50%, -80%) scale(1.5); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div id="control-panel">
-        <div id="score-board">⚡ PUMP: <span id="score">0</span></div>
-        <button id="autoclick-btn">뇌 내 자동 재생 (OFF)</button>
+    <div id="ui-layer">
+        <div id="score-board">000,000,000</div>
+        <div id="fever-container"><div id="fever-bar"></div></div>
+        <button id="autoclick-btn">DO-PA-MINE AUTO (OFF)</button>
     </div>
 
-    <div id="jackpot-screen">🎰 FEVER TIME!! 🎰</div>
     <canvas id="canvas"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score');
-        const jackpotScreen = document.getElementById('jackpot-screen');
+        const scoreDisplay = document.getElementById('score-board');
+        const feverBar = document.getElementById('fever-bar');
         const autoclickBtn = document.getElementById('autoclick-btn');
         const body = document.body;
 
         let score = 0;
-        let particles = [];
+        let fever = 0;
+        let isFeverTime = false;
         let isAutoClicking = false;
-        let autoClickTimeout = null;
-        const emojis = ['🔥', '⚡', '💊', '👑', '🎰', '🚀', '🤑', '💥', '👻', '🍭'];
+        let autoTimeout = null;
+
+        let particles = [];
+        let coins = [];
+
+        const emojis = ['🔥', '⚡', '💊', '👑', '🎰', '💎', '🎨', '🚨', '💰', '✨', '🧠', '💥'];
+        const alertTexts = ['SYSTEM OVERLOAD', 'DOPAMINE CRUSH', 'CRITICAL RUSH', 'MAXIMUM PLEASURE', 'LEVEL UP!', 'JACKPOT'];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -155,26 +192,89 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // 시각 효과용 파티클
-        class Particle {
+        // [요소 추가] 물리 법칙이 적용된 황금 코인 클래스
+        class Coin {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.size = Math.random() * 6 + 4;
-                this.speedX = (Math.random() - 0.5) * 18;
-                this.speedY = (Math.random() - 0.5) * 18;
-                this.color = `hsl(${Math.random() * 360}, 100%, 65%)`;
+                this.radius = Math.random() * 8 + 10;
+                this.vx = (Math.random() - 0.5) * 14;
+                this.vy = (Math.random() - 1) * 15; // 위로 솟구침
+                this.gravity = 0.6;
+                this.bounce = 0.5;
+                this.rotation = Math.random() * Math.PI;
+                this.rotSpeed = (Math.random() - 0.5) * 0.3;
+                this.alpha = 1;
+            }
+            update() {
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += this.rotSpeed;
+
+                // 바닥 충돌 처리
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.vy = -this.vy * this.bounce;
+                    this.vx *= 0.8; // 마찰력
+                }
+                // 벽 충돌
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.vx = -this.vx;
+                }
+                
+                if (Math.abs(this.vx) < 1 && this.y >= canvas.height - this.radius - 2) {
+                    this.alpha -= 0.02; // 정지 시 소멸
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // 황금 동전 입체 가공
+                ctx.fillStyle = '#ffd700';
+                ctx.strokeStyle = '#ff8800';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.radius, this.radius * 0.6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                // 안쪽 무늬
+                ctx.fillStyle = '#ffaa00';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('$', 0, 0);
+                
+                ctx.restore();
+            }
+        }
+
+        // 빛나는 사이버 파티클 클래스
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 8 + 3;
+                this.vx = (Math.random() - 0.5) * 24;
+                this.vy = (Math.random() - 0.5) * 24;
+                this.color = color || `hsl(${Math.random() * 360}, 100%, 60%)`;
                 this.alpha = 1;
                 this.decay = Math.random() * 0.04 + 0.02;
             }
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+                this.x += this.vx;
+                this.y += this.vy;
                 this.alpha -= this.decay;
             }
             draw() {
                 ctx.save();
                 ctx.globalAlpha = this.alpha;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -183,159 +283,195 @@
             }
         }
 
+        // 전체 애니메이션 프레임 루프
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. 파티클 업데이트
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
-                if (particles[i].alpha <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
+                if (particles[i].alpha <= 0) particles.splice(i, 1), i--;
             }
+
+            // 2. 코인 업데이트
+            for (let i = 0; i < coins.length; i++) {
+                coins[i].update();
+                coins[i].draw();
+                if (coins[i].alpha <= 0) coins.splice(i, 1), i--;
+            }
+
+            // 피버 타임 시스템 관리
+            if (isFeverTime) {
+                fever -= 0.4;
+                if (fever <= 0) {
+                    fever = 0;
+                    isFeverTime = false;
+                    body.classList.remove('fever-active');
+                }
+            } else {
+                fever = Math.max(0, fever - 0.1); // 자연 감소
+            }
+            feverBar.style.width = fever + '%';
+
             requestAnimationFrame(animate);
         }
         animate();
 
-        // 사운드 시스템
+        // 사운드 합성기
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playSound(type) {
-            if(!audioCtx) return;
+        function playAdvancedSound(style) {
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
 
-            if (type === 'heavy') {
+            if (style === 'coin') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5 코인 띵 소리
+                osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.07); // E6
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            } else if (style === 'fever') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
                 gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            } else if (type === 'jackpot') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.08);
-                osc.frequency.setValueAtTime(1300, audioCtx.currentTime + 0.16);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
             } else {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(Math.random() * 600 + 400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
+                osc.type = Math.random() > 0.5 ? 'square' : 'sawtooth';
+                osc.frequency.setValueAtTime(Math.random() * 800 + 300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.15);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             }
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        // 메인 도파민 폭발 함수
-        function triggerDopamine(x, y) {
+        // [핵심 매커니즘] 멀티 이펙트 대폭발 함수
+        function triggerMegaDopamine(x, y) {
             initAudio();
-            
-            // 기본 파티클 분사
-            for (let i = 0; i < 15; i++) {
-                particles.push(new Particle(x, y));
+
+            // 1. 점수 대폭발 (피버 타임엔 5배 획득)
+            const multiplier = isFeverTime ? 5 : 1;
+            score += (Math.floor(Math.random() * 888) + 111) * multiplier;
+            scoreDisplay.innerText = String(score).padStart(9, '0');
+
+            // 2. 피버 스택 충전
+            if (!isFeverTime) {
+                fever += 3.5;
+                if (fever >= 100) {
+                    fever = 100;
+                    isFeverTime = true;
+                    body.classList.add('fever-active');
+                    playAdvancedSound('fever');
+                    createSubTextBomb(window.innerWidth / 2, window.innerHeight / 2, "🔥 FEVER TIME ENERGIZED 🔥");
+                }
             }
 
-            score += Math.floor(Math.random() * 100) + 10;
-            scoreDisplay.innerText = score.toLocaleString();
+            // 3. 렌더링 개수 증가 (기본 파티클 + 물리 코인)
+            const pCount = isFeverTime ? 40 : 15;
+            const cCount = isFeverTime ? 8 : 2;
 
-            // 5가지 예측 불가 행동 무작위 매칭
-            const dice = Math.floor(Math.random() * 5);
-            switch(dice) {
-                case 0:
-                    body.classList.add('shake');
-                    playSound('heavy');
-                    setTimeout(() => body.classList.remove('shake'), 120);
-                    break;
-                case 1:
-                    body.classList.add('flash');
-                    playSound('heavy');
-                    setTimeout(() => body.classList.remove('flash'), 180);
-                    break;
-                case 2:
-                    const emoji = document.createElement('div');
-                    emoji.className = 'emoji-bomb';
-                    emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                    emoji.style.left = x + 'px';
-                    emoji.style.top = y + 'px';
-                    document.body.appendChild(emoji);
-                    playSound('light');
-                    setTimeout(() => emoji.remove(), 500);
-                    break;
-                case 3:
-                    jackpotScreen.classList.add('jackpot-active');
-                    playSound('jackpot');
-                    setTimeout(() => jackpotScreen.classList.remove('jackpot-active'), 350);
-                    break;
-                case 4:
-                    body.classList.add('matrix-rotate');
-                    playSound('light');
-                    setTimeout(() => body.classList.remove('matrix-rotate'), 400);
-                    break;
+            for (let i = 0; i < pCount; i++) particles.push(new Particle(x, y));
+            for (let i = 0; i < cCount; i++) {
+                coins.push(new Coin(x, y));
+                if(i === 0) playAdvancedSound('coin');
+            }
+
+            // 4. 주사위 난수 확률 이펙트 확장
+            const dice = Math.floor(Math.random() * 7);
+            playAdvancedSound('normal');
+
+            if (dice === 0 || isFeverTime && Math.random() < 0.4) {
+                body.classList.add('shake');
+                setTimeout(() => body.classList.remove('shake'), 150);
+            }
+
+            if (dice === 1) {
+                // [요소 추가] 윈도우 경고창 버그 연출 스타일 생성
+                const win = document.createElement('div');
+                win.className = 'glitch-window';
+                win.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+                win.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+                win.style.setProperty('--r', (Math.random() * 30 - 15) + 'deg');
+                win.innerText = alertTexts[Math.floor(Math.random() * alertTexts.length)];
+                document.body.appendChild(win);
+                setTimeout(() => win.remove(), 400);
+            }
+
+            if (dice === 2 || isFeverTime && Math.random() < 0.3) {
+                createSubTextBomb(x, y, alertTexts[Math.floor(Math.random() * alertTexts.length)]);
             }
         }
 
-        // 인간이 가장 도파민을 많이 느끼는 변칙적 리듬 시뮬레이터 (마스터 비트)
-        function runDopamineRhythm() {
+        function createSubTextBomb(x, y, text) {
+            const txt = document.createElement('div');
+            txt.className = 'text-bomb';
+            txt.innerText = text;
+            txt.style.left = x + 'px';
+            txt.style.top = y + 'px';
+            document.body.appendChild(txt);
+            setTimeout(() => txt.remove(), 400);
+        }
+
+        // 초변칙 도파민 리듬 엔진 개조 (BPM 145 테크노 리듬 기반)
+        function runRhythmEngine() {
             if (!isAutoClicking) return;
 
-            // 랜덤 화면 좌표 지정 (가장 다채롭게 터지는 영역)
-            const randomX = Math.random() * (window.innerWidth * 0.6) + (window.innerWidth * 0.2);
-            const randomY = Math.random() * (window.innerHeight * 0.6) + (window.innerHeight * 0.2);
+            const rx = Math.random() * window.innerWidth;
+            const ry = Math.random() * window.innerHeight;
+            triggerMegaDopamine(rx, ry);
 
-            triggerDopamine(randomX, randomY);
-
-            // [핵심 알고리즘] 다음에 클릭할 때까지의 '도파민 유도용' 대기 시간 계산
-            let nextInterval = 444; // 기본 135 BPM 속도 (약 444ms)
-
+            // 박자 쪼개기 매커니즘 고도화
+            let nextBeat = 413; // 기본 145 BPM 간격
             const r = Math.random();
-            if (r < 0.15) {
-                // 1) 엇박 밀당: 뇌를 멈칫하게 만드는 의도적인 긴 침묵 (밀당 박자)
-                nextInterval = 850;
-            } else if (r < 0.35) {
-                // 2) 도파민 폭발: 심장박동을 고조시키는 초고속 다다닥 연타 박자
-                nextInterval = 120;
-            } else if (r < 0.50) {
-                // 3) 스윙 비트: 그루브를 타게 만드는 전형적인 절뚝이 박자
-                nextInterval = 280;
+
+            if (isFeverTime) {
+                nextBeat = Math.random() < 0.6 ? 70 : 150; // 피버 타임에는 우다다다 폭주 연타
+            } else {
+                if (r < 0.2) nextBeat = 800;       // 절정 직전 드롭(Drop)을 위한 의도적 무음
+                else if (r < 0.45) nextBeat = 90;  // 하이햇 3연타 속사
+                else if (r < 0.6) nextBeat = 200;  // 스윙 싱코페이션
             }
 
-            // 다음 비트로 연쇄 실행
-            autoClickTimeout = setTimeout(runDopamineRhythm, nextInterval);
+            autoTimeout = setTimeout(runRhythmEngine, nextBeat);
         }
 
-        // 수동 클릭/터치 이벤트 (사용자가 직접 누를 때도 작동)
-        function handleManualClick(e) {
-            if (e.target === autoclickBtn) return; // 버튼 누를 때는 제외
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            triggerDopamine(clientX, clientY);
+        // 마우스/터치 바인딩
+        function handleInteraction(e) {
+            if (e.target === autoclickBtn) return;
+            const cx = e.clientX || (e.touches && e.touches[0].clientX);
+            const cy = e.clientY || (e.touches && e.touches[0].clientY);
+            triggerMegaDopamine(cx, cy);
         }
 
         window.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && !('ontouchstart' in window)) handleManualClick(e);
+            if (e.button === 0 && !('ontouchstart' in window)) handleInteraction(e);
         });
-        window.addEventListener('touchstart', handleManualClick, { passive: false });
+        window.addEventListener('touchstart', handleInteraction, { passive: false });
 
-        // 자동 클릭 모드 토글 스위치
+        // 자동 실행 제어 버튼
         autoclickBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             initAudio();
             isAutoClicking = !isAutoClicking;
 
             if (isAutoClicking) {
-                autoclickBtn.innerText = "뇌 내 자동 재생 (ON)";
+                autoclickBtn.innerText = "DO-PA-MINE AUTO (ON)";
                 autoclickBtn.classList.add('active');
-                runDopamineRhythm();
+                runRhythmEngine();
             } else {
-                autoclickBtn.innerText = "뇌 내 자동 재생 (OFF)";
+                autoclickBtn.innerText = "DO-PA-MINE AUTO (OFF)";
                 autoclickBtn.classList.remove('active');
-                clearTimeout(autoClickTimeout);
+                body.classList.remove('fever-active');
+                isFeverTime = false;
+                clearTimeout(autoTimeout);
             }
         });
     </script>
